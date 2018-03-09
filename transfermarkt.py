@@ -1,6 +1,8 @@
 #-*- coding:utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
+#import bs4
+import re
 
 
 def main ():
@@ -10,7 +12,8 @@ def main ():
     schedule = soup.find('div',class_='schedule_container left')
     boxs = schedule.find_all('div',class_='box')
    
-    for i in range(0,1):        
+    for i in range(0,1):      
+        
         content=boxs[i].find('div',class_='content')
         # day=boxs[i].find('h2')
         # date=day.get('title')
@@ -21,18 +24,25 @@ def main ():
             
 
             try:
+                Herf={}  
                 # hrefs=li.find_all('a')['href']
-                match=li.strings[0]
+                #match=li.next_element
+                tags=li.find_all(tags_has_no_href)
                 # date=li.get('data-time')
-                data.append(match)
+                #data.append(tags.contents)
+                # for child in tags,children:
+                #     data.append(child)
                 hrefs=li.find_all('a')
                 for href in hrefs:
-                    
-                    data.append(href.get('href')+href.string)
+                    Herf[href.string]=href.get('herf').text.strip()
+                    #data.append(href.get('href'))
+                data.append(Herf)
             except:
                 pass
     return data
 
+def tags_has_no_href(tag):
+    return tag and not tag.has_attr('href')
 data=main()
 print(data)
    
