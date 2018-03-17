@@ -47,4 +47,56 @@ acc_results=[]
 models_list=[]
 
 for k in k_list:
+    #建立模型
+    knn_model=KNeighborsClassifier(n_neighbors=k)
+    #训练模型
+    knn_model.fit(X_train,y_train)
+    #测试模型
+    y_pred=knn_model.predict(X_test)
+    #计算准确率
+    acc=accuracy_score(y_test,y_pred)
+
+    models_list.append(knn_model)
+    acc_results.append(acc)
+
+   # print('k={},准确率={:.2f}'.format(k,acc))    
+
+''' #可视化不同的k值对结果的影响
+plt.figure(figsize=(8,8))
+plt.plot(acc_results)
+# 标题
+plt.title('kNN with different k values')
+# x轴
+plt.xlabel('k value')
+plt.xticks(range(len(k_list)), k_list)
+# y轴
+plt.ylabel('accuracy')
+plt.ylim([0.8, 1.0])
+plt.show() '''
+
+#找出最优的k值所对应的model
+best_k_idx=np.argmax(acc_results)
+best_model=models_list[best_k_idx]
+
+#持久化模型
+model_file='Biomechanical features of orthopedic patients/model.pkl'
+with open(model_file,'wb')as f:
+    pickle.dump(best_model,f)
+
+#随机选择n个病人的数据
+n=100
+flag=0
+random_sample_data=all_data.sample(n)
+#print(random_sample_data)
+
+with open(model_file,'rb')as f:
+    trained_model=pickle.load(f)
+    x=random_sample_data.iloc[:,-1].values
+    y=trained_model.predict(random_sample_data.iloc[:,:6].values)
+    print('实际患病情况:\n{}'.format(x))
+    print('预测患病情况:\n{}'.format(y))
     
+    for i in range(len(x)):
+        if(x[i]==y[i]):
+            flag=flag+1
+    print ('实际预测率={}'.format(flag/n))
